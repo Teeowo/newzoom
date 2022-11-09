@@ -1,0 +1,30 @@
+pipeline {
+    agent any
+    stages {
+        stage ('gitclone'){
+            steps {
+                echo "Getting the script from repo"
+                git branch: 'main', credentialsId: 'GITHUB_CREDENTIALS', url: 'https://github.com/Teeowo/newzoom.git'
+                
+            }
+        }
+        stage ('NPM Install'){
+            steps {
+                sh 'npm install'
+            }
+        }
+        stage ('NPM deploy'){
+            steps {
+                echo "building the docker image for zoom"
+                sh 'docker build -t teeowo/nodezoom .'
+            }
+        }
+        stage ('Docker Run'){
+            steps {
+                echo "converting the image to a build script"
+                sh 'docker rm -f teeowo/nodezoom'
+                sh 'docker run -d -p 4566:3200 teeowo/nodezoom'
+            }
+        }
+    }
+}
